@@ -208,56 +208,15 @@ export default function AdminManage({ totalPages = 5 }: any) {
                                             </div>
                                         </TableCell>
                                     </TableRow>
-                                )) : <div className="text-center py-12 text-gray-500">
-                                    <p className="text-lg">No admins found matching your search.</p>
-                                </div>}
+                                )) : <TableRow className="text-center py-12 text-gray-500">
+                                    <TableCell colSpan={5}>
+                                    <p className="text-lg text-center py-10">No admins found matching your search.</p>
+                                    </TableCell>
+                                </TableRow>}
                             </TableBody>
                         </Table>                        
                     </div>
-
-                    {/* Pagination */}
-                    <div className="mt-6">
-
-                        <Pagination className="flex justify-end items-center p-4">
-                            <PaginationContent>
-                                {/* Previous */}
-                                <PaginationItem>
-                                    <PaginationPrevious
-                                        size="default"
-                                        onClick={() => handlePageChange(currentPage - 1)}
-                                        className='text-black!'
-                                    />
-                                </PaginationItem>
-
-                                {/* Page Numbers */}
-                                {getPages().map((page) => (
-                                    <PaginationItem key={page}>
-                                        <PaginationLink
-                                            size="default"
-                                            isActive={page === currentPage}
-                                            onClick={() => handlePageChange(page)}
-                                            className={
-                                                page === currentPage
-                                                    ? "bg-indigo-600 text-white! hover:bg-indigo-700"
-                                                    : "bg-slate-100 text-gray-600! hover:bg-gray-100 "
-                                            }
-                                        >
-                                            {page}
-                                        </PaginationLink>
-                                    </PaginationItem>
-                                ))}
-
-                                {/* Next */}
-                                <PaginationItem>
-                                    <PaginationNext
-                                        size="default"
-                                        onClick={() => handlePageChange(currentPage + 1)}
-                                        className='text-black!'
-                                    />
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
-                    </div>
+                
                 </CardContent>
             </Card>
         </div>

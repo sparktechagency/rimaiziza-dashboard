@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { FileText, Loader2, Save } from 'lucide-react';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
 import { Card, CardContent } from '../../ui/card';
 import { Textarea } from '../../ui/textarea';
+import { useGetTermsConditionQuery } from '../../../redux/features/setting/settingApi';
 
 // Terms & Conditions State
 
@@ -32,6 +33,14 @@ const TermsCondition = () => {
     const [isEditingTerms, setIsEditingTerms] = useState(false);
     const [loading, setLoading] = useState(false)
     const [termsSettings, setTermsSettings] = useState(initData);
+    const { data: termsData } = useGetTermsConditionQuery({});
+
+    console.log("termsData", termsSettings);
+    useEffect(() => {
+        if (termsData) {
+            setTermsSettings(termsData?.content)
+        }
+    }), []
 
     const handleSaveTerms = async () => {
         setLoading(true);
@@ -102,9 +111,22 @@ const TermsCondition = () => {
                         </>
                     ) : (
                         <div className="prose max-w-none">
-                            <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-                                {termsSettings.content}
-                            </div>
+                            <div
+                                dangerouslySetInnerHTML={{ __html: termsSettings || "No content yet." }}
+                                className="whitespace-pre-wrap text-gray-700 leading-relaxed" />
+
+                            {/* <div
+                                style={{
+                                    border: "1px solid #989898",
+                                    borderRadius: 20,
+                                    padding: "20px",
+                                    // color: "rgba(255,255,255,0.8)",
+                                    overflow: "auto",
+                                    background: "transparent",
+                                }}
+                                className="w-full mx-auto min-h-[350px] md:min-h-[500px]"
+                                dangerouslySetInnerHTML={{ __html: termsSettings || "No content yet." }}
+                            /> */}
                         </div>
                     )}
                 </div>

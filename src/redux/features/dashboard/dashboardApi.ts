@@ -3,7 +3,7 @@ import { baseApi } from "../../base/baseAPI";
 const dashboardApi = baseApi.injectEndpoints({
     endpoints: (builder)=>({
         getAnalytics:  builder.query({
-            query: ()=>`/analytics/admin-dashboard-overview${location?.search}`,
+            query: ()=>`/analytics/stat-counts${location?.search}`,
             transformResponse: (res: {data: any})=> res?.data,
         }),
         getUsersGrowth:  builder.query({
@@ -15,7 +15,11 @@ const dashboardApi = baseApi.injectEndpoints({
             transformResponse: (res: {data: any})=> res?.data
         }),
         getRevenueGrowth: builder.query({
-            query: ()=>`/analytics/admin-campaign-revenue-analytics${location?.search}`,
+            query: (year)=>`/analytics/yearly-revenue-chart?year=${year}`,
+            transformResponse: (res: {data: any})=> res?.data
+        }),
+        getBookingUsersGrowth: builder.query({
+            query: (year)=>`/analytics/yearly-booking-user-chart?year=${year}`,
             transformResponse: (res: {data: any})=> res?.data
         })
     })
@@ -25,5 +29,6 @@ export const {
     useGetAnalyticsQuery,
     useGetUsersGrowthQuery,
     useGetOverViewQuery,
-    useGetRevenueGrowthQuery
+    useGetRevenueGrowthQuery,
+    useGetBookingUsersGrowthQuery
 } = dashboardApi;

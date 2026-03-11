@@ -32,10 +32,7 @@ const settingApi = baseApi.injectEndpoints({
       }
     }),
 
-    getTermsCondition: builder.query({      
-      query: () => "/settings?key=termsOfService",
-      transformResponse: (res: { data: any }) => res?.data,
-    }),
+
 
     getAbout: builder.query({
       query: () => "/settings?key=aboutUs",
@@ -50,6 +47,10 @@ const settingApi = baseApi.injectEndpoints({
     }),
     getPrivacyPolicy: builder.query({
       query: () => "/disclaimer/privacy-policy",
+      transformResponse: (res: { data: any }) => res?.data,
+    }),
+    getTermsCondition: builder.query({
+      query: () => "/rules/TERMS",      
       transformResponse: (res: { data: any }) => res?.data,
     }),
     addDisclaimer: builder.mutation({

@@ -74,9 +74,7 @@ export default function AddAdminForm({ onSubmit, onCancel }: AddAdminFormProps) 
             <SelectValue placeholder="Select role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ADMIN">ADMIN</SelectItem>
-            <SelectItem value="SUPER_ADMIN">SUPER_ADMIN</SelectItem>
-            <SelectItem value="MODERATOR">MODERATOR</SelectItem>
+            <SelectItem value="ADMIN">ADMIN</SelectItem>            
           </SelectContent>
         </Select>
       </div>

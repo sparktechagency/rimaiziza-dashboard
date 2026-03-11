@@ -109,7 +109,7 @@ export default function Login() {
                                     htmlFor="terms"
                                     className="text-sm cursor-pointer"
                                 >
-                                    Accept terms and conditions
+                                    Remember Me
                                 </Label>
                             </div>
 

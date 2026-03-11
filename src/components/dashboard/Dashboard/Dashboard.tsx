@@ -1,6 +1,6 @@
-import { OrdersChart } from './OrdersChart'
+import { BookingUsersChart } from './BookingUsersChart'
 import RecentActivity from './RecentActivity'
-import { SalesChart } from './SalesChart'
+import { RevenueChart } from './RevenueChart'
 import StatsCards from './Statics'
 
 
@@ -9,8 +9,8 @@ const Dashboard = () => {
     <div className=''>
       <StatsCards />
       <div className="px-5 flex items-center gap-5 -mt-44 mb-6">
-        <SalesChart />
-        <OrdersChart />
+        <RevenueChart />
+        <BookingUsersChart />
       </div>      
       <RecentActivity />      
     </div>

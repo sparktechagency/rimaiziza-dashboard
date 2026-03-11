@@ -6,7 +6,7 @@ export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
 
-    baseUrl: "http://10.10.7.41:5005/api/v1",   
+    baseUrl: "http://10.10.7.41:5007/api/v1",   
     prepareHeaders: (headers) => {      
       const token = Cookies.get("accessToken");
       if (token) {
@@ -21,4 +21,4 @@ export const baseApi = createApi({
   tagTypes: ["user", "notifications", "admin", "category", "slider", "faqs", "withdrawal", "planner"],
 });
 
-export const imageUrl = "http://10.10.7.41:5005";
+export const imageUrl = "http://10.10.7.41:5007";

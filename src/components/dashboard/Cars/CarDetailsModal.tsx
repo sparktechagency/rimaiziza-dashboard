@@ -8,6 +8,7 @@ import {
     DialogContent,
     DialogTitle
 } from "../../ui/dialog"
+import { imageUrl } from "../../../redux/base/baseAPI"
 
 interface CarDetailsModalProps {
     open: boolean
@@ -37,7 +38,7 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
         return 'Unavailable'
     }
 
-    const allImages = car?.coverImage 
+    const allImages = car?.coverImage
         ? [car.coverImage, ...(car.images || [])]
         : []
 
@@ -48,6 +49,8 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
     const prevImage = () => {
         setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length)
     }
+
+    console.log("car", car);
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
@@ -78,7 +81,7 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
                             <h3 className="text-lg font-semibold">Vehicle Images</h3>
                             <div className="relative rounded-lg overflow-hidden bg-muted aspect-video">
                                 <img
-                                    src={allImages[currentImageIndex]}
+                                    src={imageUrl + allImages[currentImageIndex]}
                                     alt={`${car?.brand} ${car?.model}`}
                                     className="w-full h-full object-cover"
                                 />
@@ -100,21 +103,24 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
                                         >
                                             <ChevronRight className="h-5 w-5" />
                                         </Button>
-                                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                                            {allImages.map((_, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => setCurrentImageIndex(idx)}
-                                                    className={`h-2 rounded-full transition-all ${
-                                                        idx === currentImageIndex 
-                                                            ? 'bg-white w-8' 
-                                                            : 'bg-white/50 w-2'
-                                                    }`}
-                                                />
-                                            ))}
-                                        </div>
+
                                     </>
                                 )}
+
+                            </div>
+                            <div className="h-10 w-3/5 mx-auto bottom-1 flex justify-center gap-2">
+                                {allImages.map((img, idx) => (
+                                    <img
+                                        key={idx}
+                                        src={imageUrl + img}
+                                        alt={`${car?.brand} ${car?.model} - ${idx + 1}`}
+                                        onClick={() => setCurrentImageIndex(idx)}
+                                        className={`rounded-md transition-all object-cover ${idx === currentImageIndex
+                                                ? 'bg-white w-20 border-2 border-black'
+                                                : 'bg-white  w-8'
+                                            }`}
+                                    />
+                                ))}
                             </div>
                         </div>
                     )}
@@ -340,8 +346,8 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
                                 <p className="text-xs uppercase font-semibold text-muted-foreground mb-2">
                                     Available Hours
                                 </p>
-                                <div className="flex flex-wrap gap-2">
-                                    {car?.availableHours?.sort().map((hour: string, idx: number) => (
+                                {/* <div className="flex flex-wrap gap-2">
+                                    {car?.availableHours?.sort()?.map((hour: string, idx: number) => (
                                         <Badge
                                             key={idx}
                                             variant="outline"
@@ -350,7 +356,7 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
                                             {hour}
                                         </Badge>
                                     ))}
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
