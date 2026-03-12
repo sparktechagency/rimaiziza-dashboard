@@ -69,7 +69,7 @@ export function RevenueChart({ mode = "light" }: SalesChartProps) {
                             <SelectValue placeholder="Year" />
                         </SelectTrigger>
 
-                        <SelectContent className="bg-slate-700 text-white">
+                        <SelectContent className="bg-primary! text-white">
                             {[0, 1, 2, 3, 4, 5].map((i) => (
                                 <SelectItem
                                     key={i}
@@ -107,7 +107,6 @@ export function RevenueChart({ mode = "light" }: SalesChartProps) {
                         tickFormatter={(value: number) => `$${value}`}
                         dx={-10}
                     />
-                    <Legend />
                     <Tooltip
                         content={({ active, payload }: any) => {
                             if (active && payload && payload.length) {

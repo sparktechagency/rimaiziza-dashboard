@@ -15,12 +15,13 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import AddCarForm from './AddCarForm';
-import { useGetCarsQuery } from '../../../redux/features/cars/carsApi';
+import { useDeleteCarMutation, useGetCarsQuery } from '../../../redux/features/cars/carsApi';
 import { imageUrl } from '../../../redux/base/baseAPI';
 import CarDetailsModal from './CarDetailsModal';
 import { getSearchParams } from '../../../utils/getSearchParams';
 import { useUpdateSearchParams } from '../../../utils/updateSearchParams';
 import ManagePagination from '../../Shared/ManagePagination';
+import Swal from "sweetalert2";
 
 export default function AllCars() {
 
@@ -28,13 +29,55 @@ export default function AllCars() {
   const [selectedCar, setSelectedCar] = useState<any>(null);
   const [open, setOpen] = useState<any>(null);
   const { data: carsData, refetch, isLoading } = useGetCarsQuery({});
-
+  const [deleteCar] = useDeleteCarMutation();
   const { searchTerm, page } = getSearchParams();
   const updateSearchParams = useUpdateSearchParams();
 
   useEffect(() => {
     refetch();
   }, [searchTerm, page]);
+
+
+  const handleDeleteCar = async (car:any) => {
+    const result = await Swal.fire({
+      title: `Delete ${car?.model} car?`,
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "var(--color-primary)",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete it",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+     const response = await deleteCar(car?._id).unwrap();
+      console.log("response", response);
+      
+      if (response?.success) {
+        Swal.fire({
+          title: "Deleted!",
+          text: "Car has been deleted successfully.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        refetch();
+        setSelectedCar(null);
+        setOpen(null);
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to delete car.",
+        icon: "error",
+      });
+
+      console.error("Error deleting car:", error);
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -43,7 +86,7 @@ export default function AllCars() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight">
-                All Vehicles ({isLoading ? 'Loading...' : carsData?.total || 0})
+                All Vehicles 
               </h2>
             </div>
             <div className="flex items-center gap-3">
@@ -71,6 +114,7 @@ export default function AllCars() {
 
                   <div className="mt-4">
                     <AddCarForm
+                      open={isModalOpen}
                       onCancel={() => setIsModalOpen(false)}
                       data={selectedCar}
                     />
@@ -84,7 +128,7 @@ export default function AllCars() {
         <CardContent className="p-0">
           <Table>
             <TableHeader className="bg-muted/40">
-              <TableRow>                                
+              <TableRow>
                 <TableHead className="w-36">Vehicle</TableHead>
                 <TableHead className="w-36">License Plate</TableHead>
                 <TableHead className="w-36">Model</TableHead>
@@ -167,10 +211,10 @@ export default function AllCars() {
                       <button onClick={() => { setSelectedCar(car); setOpen(true) }} className="text-muted-foreground hover:text-foreground transition-colors">
                         <Eye className="h-4 w-4" />
                       </button>
-                      <button onClick={() => { setSelectedCar(car) }} className="text-muted-foreground hover:text-foreground transition-colors">
+                      <button onClick={() => { setSelectedCar(car); setIsModalOpen(true) }} className="text-muted-foreground hover:text-foreground transition-colors">
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <button className="text-muted-foreground hover:text-red-600 transition-colors">
+                      <button onClick={() => handleDeleteCar(car) } className="text-muted-foreground hover:text-red-600 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>

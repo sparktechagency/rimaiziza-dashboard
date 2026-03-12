@@ -3,6 +3,7 @@ import { ImageIcon, Upload, X } from "lucide-react"
 
 import { cn } from "../../lib/utils"
 import { Button } from "../ui/button"
+import { imageUrl } from "../../redux/base/baseAPI"
 
 
 interface MultipleImageUploaderProps {
@@ -88,14 +89,14 @@ export function MultipleImageUploader({
                                 style={{ height }}
                             >
                                 <img
-                                    src={img}
+                                    src={imageUrl + img}
                                     className="h-full w-full object-cover"
                                     alt="existing"
                                 />
 
                                 <Button
-                                    size="icon"
-                                    variant="destructive"
+                                 type="button"  
+                                    size="icon"                                    
                                     className="absolute right-1 top-1 h-6 w-6"
                                     onClick={() => onRemove(index)}
                                 >
@@ -121,6 +122,7 @@ export function MultipleImageUploader({
                                     />
 
                                     <Button
+                                     type="button"  
                                         size="icon"                                        
                                         className="absolute right-1 top-1 h-6 w-6 bg-red-600!"
                                         onClick={() => onRemove(actualIndex)}

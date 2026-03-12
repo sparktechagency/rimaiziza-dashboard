@@ -24,8 +24,8 @@ const PersonalInformation = () => {
 
   const { data: profileData } = useGetProfileQuery({});
   const [editProfile] = useEditProfileMutation()
-  
 
+  console.log("profileData", profileData)
   useEffect(() => {
     setFormData({ name: profileData?.name, email: profileData?.email });
     setExistingProfileUrl(profileData?.profileImage)
@@ -63,7 +63,6 @@ const PersonalInformation = () => {
   };
 
   const handleSave = async () => {
-    setLoading(true);
 
     try {
       const payload = new FormData();

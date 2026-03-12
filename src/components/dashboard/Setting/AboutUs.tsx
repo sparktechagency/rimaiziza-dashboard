@@ -1,59 +1,58 @@
-import { FileText, Loader2, Save } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FileText, Loader2, Save } from "lucide-react";
+
 import { Button } from "../../ui/button";
 import { Card, CardContent } from "../../ui/card";
 import { Textarea } from "../../ui/textarea";
+
 import {
   useAddDisclaimerMutation,
-  useGetPrivacyPolicyQuery,
+  useGetAboutQuery,
 } from "../../../redux/features/setting/settingApi";
+
 import { toast } from "sonner";
 
-const PrivacyPolicy = () => {
-  const [content, setContent] = useState("");  
-  const [isEditingPrivacy, setIsEditingPrivacy] = useState(false);
+const AboutUs = () => {
+  const [content, setContent] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
 
-  const { data: privacyData } = useGetPrivacyPolicyQuery({});
-  const [addDisclaimer, { isLoading: addDisclaimerLoading }] =
-    useAddDisclaimerMutation();
+  const { data: aboutData } = useGetAboutQuery({});
+  const [addDisclaimer, { isLoading }] = useAddDisclaimerMutation();
 
   useEffect(() => {
-    if (privacyData?.content) {
-      setContent(privacyData.content);      
+    if (aboutData?.content) {
+      setContent(aboutData.content);
     }
-  }, [privacyData]);
+  }, [aboutData]);
 
-  const handleSavePrivacy = async () => {
+  const handleSave = async () => {
     try {
       const response = await addDisclaimer({
-        type: "PRIVACY",
+        type: "ABOUT",
         content,
       }).unwrap();
 
       if (response?.success) {
-        toast.success(response?.message || "Privacy policy updated");        
-        setIsEditingPrivacy(false);
+        toast.success(response?.message || "About page updated");
+        setIsEditing(false);
       }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update privacy policy");
+      toast.error(error?.data?.message || "Failed to update about page");
     }
-  };
-
-  const handleCancel = () => {    
-    setIsEditingPrivacy(false);
   };
 
   return (
     <Card className="border-none shadow-sm max-w-6xl mx-auto">
       <CardContent className="px-8 pb-8">
         <div className="space-y-6">
+
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Privacy Policy</h2>
+            <h2 className="text-2xl font-bold">About Us</h2>
 
-            {!isEditingPrivacy && (
+            {!isEditing && (
               <Button
-                onClick={() => setIsEditingPrivacy(true)}
+                onClick={() => setIsEditing(true)}
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 <FileText className="h-4 w-4 mr-2" />
@@ -62,8 +61,7 @@ const PrivacyPolicy = () => {
             )}
           </div>
 
-          {/* Editing Mode */}
-          {isEditingPrivacy ? (
+          {isEditing ? (
             <>
               <Textarea
                 value={content}
@@ -73,11 +71,11 @@ const PrivacyPolicy = () => {
 
               <div className="flex gap-3">
                 <Button
-                  onClick={handleSavePrivacy}
-                  disabled={addDisclaimerLoading}
+                  onClick={handleSave}
+                  disabled={isLoading}
                   className="bg-red-600 hover:bg-red-700 text-white"
                 >
-                  {addDisclaimerLoading ? (
+                  {isLoading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Saving...
@@ -91,16 +89,15 @@ const PrivacyPolicy = () => {
                 </Button>
 
                 <Button
-                  onClick={handleCancel}
+                  onClick={() => setIsEditing(false)}
                   variant="outline"
-                  disabled={addDisclaimerLoading}
+                  disabled={isLoading}
                 >
                   Cancel
                 </Button>
               </div>
             </>
           ) : (
-            /* View Mode */
             <div className="prose max-w-none whitespace-pre-wrap text-gray-700 leading-relaxed">
               {content || "No content yet."}
             </div>
@@ -111,4 +108,4 @@ const PrivacyPolicy = () => {
   );
 };
 
-export default PrivacyPolicy;
+export default AboutUs;

@@ -1,5 +1,5 @@
 // pages/bookings/BookingsPage.tsx
-import { Calendar, Eye, Filter, Search } from "lucide-react";
+import { Calendar, Eye, Filter, Loader, Search } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
@@ -21,6 +21,8 @@ import {
     TableRow,
 } from "../../ui/table";
 import BookingDetailsModal from "./BookingDetailsModal";
+import { useGetBookingsQuery } from "../../../redux/features/booking/bookingApi";
+import ManagePagination from "../../Shared/ManagePagination";
 
 export default function Bookings() {
     const [openBookingDetails, setOpenBookingDetails] = useState(false);
@@ -28,213 +30,51 @@ export default function Bookings() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
 
-    console.log("openBookingDetails", openBookingDetails);
-    console.log("selectedBooking", selectedBooking);
-
-    const bookings = [
-        {
-            bookingId: "BK001",
-            customer: {
-                name: "John Doe",
-                email: "john.doe@example.com",
-                phone: "+1 234-567-8900"
-            },
-            host: {
-                name: "Sarah Miller",
-                email: "sarah.miller@host.com",
-                phone: "+1 234-567-8901"
-            },
-            vehicle: {
-                name: "2023 Tesla Model 3",
-                plate: "DHA-1234",
-                image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89"
-            },
-            dates: {
-                start: "2025-01-20",
-                end: "2025-01-25",
-                duration: 5
-            },
-            pricing: {
-                dailyRate: 120,
-                days: 5,
-                subtotal: 600,
-                platformFee: 90,
-                platformFeePercentage: 15,
-                hostEarnings: 510,
-                total: 600
-            },
-            status: "requested",
-            createdAt: "2025-01-15 10:30 AM"
-        },
-        {
-            bookingId: "BK002",
-            customer: {
-                name: "Jane Smith",
-                email: "jane.smith@example.com",
-                phone: "+1 234-567-8902"
-            },
-            host: {
-                name: "Mike Johnson",
-                email: "mike.johnson@host.com",
-                phone: "+1 234-567-8903"
-            },
-            vehicle: {
-                name: "2022 BMW X5",
-                plate: "CTG-5678",
-                image: "https://images.unsplash.com/photo-1555215695-3004980ad54e"
-            },
-            dates: {
-                start: "2025-01-18",
-                end: "2025-01-22",
-                duration: 4
-            },
-            pricing: {
-                dailyRate: 180,
-                days: 4,
-                subtotal: 720,
-                platformFee: 108,
-                platformFeePercentage: 15,
-                hostEarnings: 612,
-                total: 720
-            },
-            status: "confirmed",
-            createdAt: "2025-01-14 02:15 PM"
-        },
-        {
-            bookingId: "BK003",
-            customer: {
-                name: "Robert Brown",
-                email: "robert.brown@example.com",
-                phone: "+1 234-567-8904"
-            },
-            host: {
-                name: "Sarah Miller",
-                email: "sarah.miller@host.com",
-                phone: "+1 234-567-8901"
-            },
-            vehicle: {
-                name: "2023 Tesla Model 3",
-                plate: "DHA-1234",
-                image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89"
-            },
-            dates: {
-                start: "2025-01-20",
-                end: "2025-01-25",
-                duration: 5
-            },
-            pricing: {
-                dailyRate: 120,
-                days: 5,
-                subtotal: 600,
-                platformFee: 90,
-                platformFeePercentage: 15,
-                hostEarnings: 510,
-                total: 600
-            },
-            status: "pending",
-            createdAt: "2025-01-13 11:45 AM"
-        },
-        {
-            bookingId: "BK004",
-            customer: {
-                name: "Emily Davis",
-                email: "emily.davis@example.com",
-                phone: "+1 234-567-8905"
-            },
-            host: {
-                name: "Mike Johnson",
-                email: "mike.johnson@host.com",
-                phone: "+1 234-567-8903"
-            },
-            vehicle: {
-                name: "2021 Honda Civic",
-                plate: "DHA-9087",
-                image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7"
-            },
-            dates: {
-                start: "2025-01-10",
-                end: "2025-01-15",
-                duration: 5
-            },
-            pricing: {
-                dailyRate: 85,
-                days: 5,
-                subtotal: 425,
-                platformFee: 64,
-                platformFeePercentage: 15,
-                hostEarnings: 361,
-                total: 425
-            },
-            status: "completed",
-            createdAt: "2025-01-08 09:20 AM"
-        },
-        {
-            bookingId: "BK005",
-            customer: {
-                name: "Michael Wilson",
-                email: "michael.wilson@example.com",
-                phone: "+1 234-567-8906"
-            },
-            host: {
-                name: "Sarah Miller",
-                email: "sarah.miller@host.com",
-                phone: "+1 234-567-8901"
-            },
-            vehicle: {
-                name: "2023 Mercedes-Benz C-Class",
-                plate: "SYL-4455",
-                image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8"
-            },
-            dates: {
-                start: "2025-01-05",
-                end: "2025-01-08",
-                duration: 3
-            },
-            pricing: {
-                dailyRate: 200,
-                days: 3,
-                subtotal: 600,
-                platformFee: 90,
-                platformFeePercentage: 15,
-                hostEarnings: 510,
-                total: 600
-            },
-            status: "canceled",
-            createdAt: "2025-01-03 04:30 PM"
-        },
-    ];
+    const { data: bookingData, isLoading } = useGetBookingsQuery({});
+    
+    const bookings = bookingData?.data ?? [];
 
     const getStatusVariant = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'confirmed':
+        switch (status.toUpperCase()) {
+            case 'CONFIRMED':
                 return 'bg-green-100 text-green-800 hover:bg-green-100'
-            case 'requested':
+            case 'REQUESTED':
                 return 'bg-blue-100 text-blue-800 hover:bg-blue-100'
-            case 'pending':
+            case 'PENDING':
                 return 'bg-amber-100 text-amber-800 hover:bg-amber-100'
-            case 'completed':
+            case 'COMPLETED':
                 return 'bg-slate-100 text-slate-800 hover:bg-slate-100'
-            case 'canceled':
+            case 'CANCELED':
+            case 'CANCELLED':
                 return 'bg-red-100 text-red-800 hover:bg-red-100'
             default:
                 return 'bg-gray-100 text-gray-800'
         }
     };
 
-    const filteredBookings = bookings.filter(booking => {
-        const matchesStatus = statusFilter === "all" || booking.status === statusFilter;
-        const matchesSearch = 
-            booking.bookingId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            booking.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            booking.host.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            booking.vehicle.name.toLowerCase().includes(searchQuery.toLowerCase());
-        
-        return matchesStatus && matchesSearch;
-    });
+
+    const formatDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+        });
+    };
+
+    const formatDateTime = (dateStr: string) => {
+        return new Date(dateStr).toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    };
 
     return (
         <>
             <Card className="border-none shadow-sm m-5">
+                
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
@@ -243,39 +83,33 @@ export default function Bookings() {
                                 Manage your bookings
                             </p>
                         </div>
+                        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                            <div className="flex-1 relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                                <Input
+                                    placeholder="Search bookings..."
+                                    className="pl-10"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-full sm:w-[180px] h-11! bg-primary! text-white! outline-none!">
+                                    <SelectValue placeholder="All Status" className="text-white! border-none!" />
+                                </SelectTrigger>
+                                <SelectContent align="start" className="bg-primary! text-white!">
+                                    <SelectItem value="all">All Status</SelectItem>
+                                    <SelectItem value="REQUESTED">Requested</SelectItem>
+                                    <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+                                    <SelectItem value="PENDING">Pending</SelectItem>
+                                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                                    <SelectItem value="CANCELED">Canceled</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </CardHeader>
-
                 <CardContent>
-                    <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                            <Input
-                                placeholder="Search bookings..."
-                                className="pl-10"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full sm:w-[180px] h-11!">
-                                <SelectValue placeholder="All Status" />
-                            </SelectTrigger>
-                            <SelectContent align="start">
-                                <SelectItem value="all">All Status</SelectItem>
-                                <SelectItem value="requested">Requested</SelectItem>
-                                <SelectItem value="confirmed">Confirmed</SelectItem>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="completed">Completed</SelectItem>
-                                <SelectItem value="canceled">Canceled</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Button variant="outline" className="gap-2">
-                            <Filter className="h-4 w-4" />
-                            Filters
-                        </Button>
-                    </div>
-
                     <div className="border rounded-lg">
                         <Table>
                             <TableHeader>
@@ -291,78 +125,95 @@ export default function Bookings() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredBookings.map((booking, index) => (
-                                    <TableRow key={booking.bookingId} data-aos="fade-up" data-aos-delay={index * 100}>
-                                        <TableCell>
-                                            <div className="font-medium">{booking.bookingId}</div>
-                                            <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                                                <Calendar className="h-3 w-3" />
-                                                {booking.createdAt}
+                                {isLoading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                                            <div className="flex items-center justify-center gap-3">
+                                                <Loader className="w-6 h-6 animate-spin" /> Loading
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="font-medium">{booking.customer.name}</div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="font-medium">{booking.vehicle.name}</div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="font-medium">{booking.host.name}</div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-1 text-sm">
-                                                <Calendar className="h-3 w-3 text-muted-foreground" />
-                                                <span className="font-medium">{booking.dates.start}</span>
-                                            </div>
-                                            <div className="text-sm text-muted-foreground">
-                                                to {booking.dates.end}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground mt-1">
-                                                {booking.dates.duration} days
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="font-semibold">
-                                                ${booking.pricing.total}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground">
-                                                {booking.dates.duration} days
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant="outline"
-                                                className={`px-3 py-1 font-medium capitalize ${getStatusVariant(
-                                                    booking.status
-                                                )}`}
-                                            >
-                                                {booking.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Button
-                                                onClick={() => {
-                                                    setOpenBookingDetails(true);
-                                                    setSelectedBooking(booking);
-                                                }}
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8"
-                                            >
-                                                <Eye className="h-4 w-4" />
-                                            </Button>
                                         </TableCell>
                                     </TableRow>
-                                ))}
+                                ) : (
+                                    bookings.map((booking: any, index: number) => {
+                                        const vehicleName = `${booking.car?.year ?? ""} ${booking.car?.brand ?? ""} ${booking.car?.model ?? ""}`.trim();
+                                        const durationMs = new Date(booking.toDate).getTime() - new Date(booking.fromDate).getTime();
+                                        const durationDays = Math.ceil(durationMs / (1000 * 60 * 60 * 24));
+
+                                        return (
+                                            <TableRow key={booking._id} data-aos="fade-up" data-aos-delay={index * 100}>
+                                                <TableCell>
+                                                    <div className="font-medium">{booking.bookingId}</div>
+                                                    <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                                                        <Calendar className="h-3 w-3" />
+                                                        {formatDateTime(booking.requestedAt)}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="font-medium">{booking.user?.name ?? "N/A"}</div>
+                                                    <div className="text-xs text-muted-foreground">{booking.user?.email}</div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="font-medium">{vehicleName}</div>
+                                                    <div className="text-xs text-muted-foreground">{booking.car?.licensePlate}</div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="font-medium">{booking.host?.name ?? "N/A"}</div>
+                                                    <div className="text-xs text-muted-foreground">{booking.host?.email}</div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-1 text-sm">
+                                                        <Calendar className="h-3 w-3 text-muted-foreground" />
+                                                        <span className="font-medium">{formatDate(booking.fromDate)}</span>
+                                                    </div>
+                                                    <div className="text-sm text-muted-foreground">
+                                                        to {formatDate(booking.toDate)}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground mt-1">
+                                                        {durationDays} day{durationDays !== 1 ? "s" : ""}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="font-semibold">
+                                                        ${booking.totalAmount?.toFixed(2)}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        {durationDays} day{durationDays !== 1 ? "s" : ""}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className={`px-3 py-1 font-medium capitalize ${getStatusVariant(booking.bookingStatus)}`}
+                                                    >
+                                                        {booking.bookingStatus.toLowerCase()}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button
+                                                        onClick={() => {
+                                                            setOpenBookingDetails(true);
+                                                            setSelectedBooking(booking);
+                                                        }}
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8"
+                                                    >
+                                                        <Eye className="h-4 w-4" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })
+                                )}
                             </TableBody>
                         </Table>
                     </div>
-
-                    {filteredBookings.length === 0 && (
+                    {!isLoading && bookings.length === 0 && (
                         <div className="text-center py-12 text-muted-foreground">
                             No bookings found matching your criteria.
                         </div>
                     )}
+                       <ManagePagination meta={bookings?.meta} />                
                 </CardContent>
             </Card>
 

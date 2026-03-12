@@ -2,6 +2,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,  
+  Legend,  
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -73,7 +74,7 @@ export function BookingUsersChart({ mode = "light" }: OrdersChartProps) {
               <SelectValue placeholder="Year" />
             </SelectTrigger>
 
-            <SelectContent className="bg-slate-700 text-white">
+            <SelectContent className="bg-primary! text-white">
               {[0,1,2,3,4,5].map((i) => (
                 <SelectItem
                   key={i}
@@ -89,7 +90,6 @@ export function BookingUsersChart({ mode = "light" }: OrdersChartProps) {
 
       <ResponsiveContainer width="100%" height={350} style={{ paddingInline: "20px" }}>
         <BarChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-
           <CartesianGrid
             strokeDasharray="3 3"
             stroke={gridColor}
@@ -110,7 +110,7 @@ export function BookingUsersChart({ mode = "light" }: OrdersChartProps) {
             tick={{ fill: colors.gray[600], fontSize: 13 }}
             dx={-10}
           />
-          
+          <Legend /> 
 
           <Tooltip
             content={({ active, payload }: any) => {

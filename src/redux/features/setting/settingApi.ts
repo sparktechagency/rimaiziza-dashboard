@@ -34,9 +34,9 @@ const settingApi = baseApi.injectEndpoints({
 
 
 
-    getAbout: builder.query({
-      query: () => "/settings?key=aboutUs",
-      // transformResponse: (res: { data: any }) => res?.data,
+   getAbout: builder.query({
+      query: () => "/rules/ABOUT",
+      transformResponse: (res: { data: any }) => res?.data,
     }),
     addAbout: builder.mutation({
       query: (data) => ({
@@ -46,7 +46,7 @@ const settingApi = baseApi.injectEndpoints({
         }),
     }),
     getPrivacyPolicy: builder.query({
-      query: () => "/disclaimer/privacy-policy",
+      query: () => "/rules/PRIVACY",
       transformResponse: (res: { data: any }) => res?.data,
     }),
     getTermsCondition: builder.query({
@@ -55,8 +55,8 @@ const settingApi = baseApi.injectEndpoints({
     }),
     addDisclaimer: builder.mutation({
       query: (data) => ({
-          url: "/settings",
-          method: "PUT",
+          url: "/rules",
+          method: "POST",
           body: data,
         }),
     }),

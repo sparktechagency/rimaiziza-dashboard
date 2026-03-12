@@ -346,17 +346,17 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
                                 <p className="text-xs uppercase font-semibold text-muted-foreground mb-2">
                                     Available Hours
                                 </p>
-                                {/* <div className="flex flex-wrap gap-2">
-                                    {car?.availableHours?.sort()?.map((hour: string, idx: number) => (
+                                <div className="flex flex-wrap gap-2">
+                                    {car?.availableHours?.map((hour: string, idx: number) => (
                                         <Badge
                                             key={idx}
                                             variant="outline"
                                             className="bg-purple-50 text-purple-700 border-purple-200"
                                         >
-                                            {hour}
+                                            {hour} {Number(hour.split(':')[0]) < 12 ? 'AM' : 'PM'}
                                         </Badge>
                                     ))}
-                                </div> */}
+                                </div>
                             </div>
                         </div>
                     </div>

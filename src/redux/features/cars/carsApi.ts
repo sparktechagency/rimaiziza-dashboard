@@ -6,11 +6,13 @@ const carsApi = baseApi.injectEndpoints({
             query: () => ({
                 url: `/cars${location?.search}`,
             }),
+            providesTags: ["cars"],
         }),
 
         getCarById: builder.query({
             query: (id) => `/cars/${id}`,
             transformResponse: (res: { data: any }) => res?.data,
+            providesTags: ["cars"],
         }),
 
         createCar: builder.mutation({
@@ -19,14 +21,16 @@ const carsApi = baseApi.injectEndpoints({
                 method: "POST",
                 body,
             }),
+            invalidatesTags: ["cars"],
         }),
 
         updateCar: builder.mutation({
-            query: ({ id, ...body }) => ({
-                url: `/cars/${id}`,
-                method: "PUT",
-                body,
+            query: (data) => ({
+                url: `/cars/${data?.id}`,
+                method: "PATCH",
+                body: data?.formData,
             }),
+            invalidatesTags: ["cars"],
         }),
 
         deleteCar: builder.mutation({
@@ -34,6 +38,7 @@ const carsApi = baseApi.injectEndpoints({
                 url: `/cars/${id}`,
                 method: "DELETE",
             }),
+            invalidatesTags: ["cars"],
         }),
 
         getCarAnalytics: builder.query({

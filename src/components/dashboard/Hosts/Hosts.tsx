@@ -5,10 +5,12 @@ import {
     Copy,
     Eye,
     Filter,
+    Loader,
     Lock,
     Mail,
     Pencil,
     Search,
+    Trash2,
     UserPlus
 } from "lucide-react";
 
@@ -27,89 +29,19 @@ import {
     TableRow,
 } from "../../ui/table";
 import HostDetailsModal from "./HostDetailsModal";
+import { useDeleteHostMutation, useGetHostsQuery } from "../../../redux/features/host/hostApi";
+import AddHostForm from "./AddHostForm";
+import Swal from "sweetalert2";
 
-export default function Hosts() {    
+export default function Hosts() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedHost, setSelectedHost] = useState<any>(null);
     const [openHostDetails, setOpenHostDetails] = useState(false);
 
+    const { data: hostsData, isLoading } = useGetHostsQuery({});
+    const [deleteHost] = useDeleteHostMutation()
+    const hosts = hostsData?.data ?? [];
 
-    console.log("openHostDetails", openHostDetails);
-    console.log("selectedHost", selectedHost);
-
-    const hosts = [
-        {
-            membershipId: "MEM-2023-001",
-            name: "Sarah Miller",
-            joined: "2023-11-10",
-            email: "sarah.miller@host.com",
-            password: "•••••••••",
-            totalVehicles: 3,
-            revenue: 15600,
-            trips: 87,
-            status: "active",
-            vehicles: [
-                {
-                    id: 'veh-001',
-                    name: 'Toyota Corolla',
-                    plate: 'DHA-1234',
-                    status: 'available',
-                    image: 'https://images.unsplash.com/photo-1549924231-f129b911e442'
-                },
-                {
-                    id: 'veh-002',
-                    name: 'Honda Civic',
-                    plate: 'CTG-5678',
-                    status: 'booked',
-                    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70'
-                },
-                {
-                    id: 'veh-003',
-                    name: 'BMW X5',
-                    plate: 'DHA-9087',
-                    status: 'rented',
-                    image: 'https://images.unsplash.com/photo-1542362567-b07e54358753'
-                },
-                {
-                    id: 'veh-004',
-                    name: 'Mercedes-Benz C-Class',
-                    plate: 'SYL-4455',
-                    status: 'maintenance',
-                    image: 'https://images.unsplash.com/photo-1617531653520-4893f1e6f5f9'
-                },
-                {
-                    id: 'veh-005',
-                    name: 'Toyota Hiace',
-                    plate: 'DHA-7788',
-                    status: 'available',
-                    image: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2'
-                }
-            ]
-        },
-        {
-            membershipId: "MEM-2023-002",
-            name: "Sarah Miller",
-            joined: "2023-11-10",
-            email: "sarah.miller@host.com",
-            password: "•••••••••",
-            totalVehicles: 3,
-            revenue: 15600,
-            trips: 87,
-            status: "active",
-        },
-        {
-            membershipId: "MEM-2023-003",
-            name: "Sarah Miller",
-            joined: "2023-11-10",
-            email: "sarah.miller@host.com",
-            password: "•••••••••",
-            totalVehicles: 3,
-            revenue: 15600,
-            trips: 87,
-            status: "suspended",
-        },
-        // Add more...
-    ]
 
     const getStatusVariant = (status: string) => {
         switch (status.toLowerCase()) {
@@ -124,55 +56,89 @@ export default function Hosts() {
         }
     }
 
+    const handleHostDelete = async (host: any) => {
+        const result = await Swal.fire({
+            title: `Delete ${host?.name} host?`,
+            text: "This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "var(--color-primary)",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, delete it",
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const response = await deleteHost(host._id).unwrap();
+            console.log("response", response);
+
+            if (response?.success) {
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "Host has been deleted successfully.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+
+                setSelectedHost(null);
+                setOpenHostDetails(false);
+            }
+        } catch (error) {
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to delete host.",
+                icon: "error",
+            });
+
+            console.error("Error deleting host:", error);
+        }
+    }
+
     return (
         <div className="">
-            < Card className="border-none shadow-sm m-5" >
+            <Card className="border-none shadow-sm m-5">
                 <CardHeader>
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
-                            <h3 className=" text-2xl font-semibold mb-1">Hosts Management</h3>
+                            <h3 className="text-2xl font-semibold mb-1">Hosts Management</h3>
                             <p className="text-sm text-gray-500">Manage your hosts</p>
                         </div>
 
-                        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="bg-indigo-600 hover:bg-indigo-700 border-0">
-                                    <UserPlus className="w-4 h-4 mr-2" />
-                                    Add User
-                                </Button>
-                            </DialogTrigger>
+                        <div className=" flex items-center gap-2">
+                            <div className="relative w-72">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search host..."
+                                    className="pl-10 bg-white"
+                                />
+                            </div>
+                            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                                <DialogTrigger asChild>
+                                    <Button className="bg-indigo-600 hover:bg-indigo-700 border-0">
+                                        <UserPlus className="w-4 h-4 mr-2" />
+                                        Add Host
+                                    </Button>
+                                </DialogTrigger>
 
-                            <DialogContent className="min-w-4xl! max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                    <DialogTitle className="text-2xl font-semibold">Add New User</DialogTitle>
-                                </DialogHeader>
-
-                                {/* <div className="mt-4">
-                                        <AddUserForm
-                                            onSubmit={(formData) => {
-                                                // Handle form submission here
-                                                console.log("Form submitted:", Object.fromEntries(formData));
-                                                setIsModalOpen(false);
-                                            }}
+                                <DialogContent className="min-w-4xl! max-h-[90vh] overflow-y-auto">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-2xl font-semibold">Add New Host</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="mt-4">
+                                        <AddHostForm
+                                            open={isModalOpen}
                                             onCancel={() => setIsModalOpen(false)}
+                                            data={selectedHost}
                                         />
-                                    </div> */}
-                            </DialogContent>
-                        </Dialog>
-                    </div>
-                    <div className="flex items-center justify-between w-full">
-                        <Button variant="outline" className="gap-2">
-                            <Filter className="h-4 w-4" />
-                            Filters
-                        </Button>
-                        <div className="relative w-72">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                placeholder="Search host..."
-                                className="pl-10 bg-white"
-                            />
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
                         </div>
+
                     </div>
+
                 </CardHeader>
                 <CardContent className="p-0">
                     <Table>
@@ -190,13 +156,22 @@ export default function Hosts() {
                         </TableHeader>
 
                         <TableBody>
-                            {hosts.map((host, index) => (
-                                <TableRow key={index} data-aos="fade-up" data-aos-delay={index * 100} className="hover:bg-muted/30">
+                            {isLoading ? (
+                                <TableRow>
+                                    <TableCell colSpan={8} align='center'>
+                                        <div className="flex items-center justify-center gap-3">
+                                            <Loader className="w-6 h-6 animate-spin" /> Loading
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ) : hosts.length > 0 ? hosts.map((host: any, index: number) => (
+                                <TableRow key={host._id} data-aos="fade-up" data-aos-delay={index * 100} className="hover:bg-muted/30">
                                     <TableCell className="pl-6 font-medium">
                                         <div className="space-y-1">
                                             <div>{host.membershipId}</div>
                                             <div className="text-xs text-muted-foreground">
-                                                Joined: {host.joined}
+                                                {/* API returns ISO date string — format to readable date */}
+                                                Joined: {new Date(host.createdAt).toLocaleDateString()}
                                             </div>
                                         </div>
                                     </TableCell>
@@ -210,19 +185,19 @@ export default function Hosts() {
                                             <div className="flex items-center gap-2">
                                                 <Mail className="h-4 w-4 text-muted-foreground" />
                                                 <span>{host.email}</span>
-                                                <Button variant="ghost" size="icon" className="h-6 w-6">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-6 w-6"
+                                                    onClick={() => navigator.clipboard.writeText(host.email)}
+                                                >
                                                     <Copy className="h-3.5 w-3.5" />
                                                 </Button>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Lock className="h-4 w-4 text-muted-foreground" />
-                                                <span>{host.password}</span>
-                                                <Button variant="ghost" size="icon" className="h-6 w-6">
-                                                    <Eye className="h-3.5 w-3.5" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-6 w-6">
-                                                    <Copy className="h-3.5 w-3.5" />
-                                                </Button>
+                                                {/* Password hash should never be shown — display placeholder */}
+                                                <span>{"•••••••••"}</span>
                                             </div>
                                         </div>
                                     </TableCell>
@@ -230,47 +205,64 @@ export default function Hosts() {
                                     <TableCell className="text-center">
                                         <div className="flex items-center justify-center gap-1">
                                             <Car className="h-4 w-4 text-muted-foreground" />
-                                            <span className="font-medium">{host?.totalVehicles}</span>
+                                            {/* API field: vehicleCount */}
+                                            <span className="font-medium">{host.vehicleCount ?? 0}</span>
                                         </div>
                                     </TableCell>
 
+                                    {/* API field: totalRevenue */}
                                     <TableCell className="text-center font-medium text-green-700">
-                                        ${host.revenue.toLocaleString()}
+                                        ${(host.totalRevenue ?? 0).toLocaleString()}
                                     </TableCell>
 
+                                    {/* API field: totalTrips */}
                                     <TableCell className="text-center">
                                         <div className="flex items-center justify-center gap-1">
                                             <Calendar className="h-4 w-4 text-muted-foreground" />
-                                            <span>{host.trips}</span>
+                                            <span>{host.totalTrips ?? 0}</span>
                                         </div>
                                     </TableCell>
 
+                                    {/* API field: status (uppercase e.g. "ACTIVE") */}
                                     <TableCell className="text-center">
                                         <Badge
                                             variant="outline"
                                             className={`px-3 py-1 capitalize ${getStatusVariant(host.status)}`}
                                         >
-                                            {host.status}
+                                            {host.status.toLowerCase()}
                                         </Badge>
                                     </TableCell>
 
                                     <TableCell className="text-center">
                                         <div className="flex items-center justify-center gap-3">
-                                            <Button onClick={() => { setOpenHostDetails(true); setSelectedHost(host) }} variant="ghost" size="icon" className="h-8 w-8">
+                                            <Button
+                                                onClick={() => { setOpenHostDetails(true); setSelectedHost(host); }}
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8"
+                                            >
                                                 <Eye className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
+                                            <button onClick={() => handleHostDelete(host)} className="text-muted-foreground hover:text-red-600 transition-colors">
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            )) : (
+                                <TableRow>
+                                    <TableCell align='center' colSpan={8} className='text-lg'>Host Data Not Found</TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>
-            </ Card>
-            <HostDetailsModal open={openHostDetails} host={selectedHost} onClose={() => { setOpenHostDetails(false); setSelectedHost(null) }} />
+            </Card>
+            <HostDetailsModal
+                open={openHostDetails}
+                host={selectedHost}
+                onClose={() => { setOpenHostDetails(false); setSelectedHost(null); }}
+            />
         </div>
     )
 }

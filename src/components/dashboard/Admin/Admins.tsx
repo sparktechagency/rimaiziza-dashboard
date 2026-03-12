@@ -14,14 +14,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '../../ui/dialog';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from '../../ui/pagination';
+
 import {
     Table,
     TableBody,
@@ -43,6 +36,7 @@ export default function AdminManage({ totalPages = 5 }: any) {
     const [addAdmin] = useCreateAdminMutation()
     const [deleteAdmin] = useDeleteAdminMutation()
 
+    console.log("adminsData", adminsData);
     const handlePageChange = (page: number) => {
         if (page < 1 || page > totalPages) return;
         setCurrentPage(page);
@@ -197,7 +191,7 @@ export default function AdminManage({ totalPages = 5 }: any) {
                                             <Badge className={getStatusBadge(admin.status)}>{admin.status}</Badge>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center justify-end gap-2 pr-5">                                                
+                                            <div className="flex items-center justify-end gap-2 pr-5">                                                                                                
                                                 <Button
                                                 onClick={()=>handleAdminDelete(admin?._id)}                                                    
                                                     size="sm"

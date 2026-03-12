@@ -7,6 +7,7 @@ import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { useLoginAdminMutation } from "../../redux/features/auth/authApi"
 import { toast } from "sonner"
+import { Eye, EyeOff } from "lucide-react"
 
 
 
@@ -14,7 +15,7 @@ export default function Login() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [acceptTerms, setAcceptTerms] = useState(false)
-
+    const [viewPassword, setViewPassword] = useState(false)
     const [login] = useLoginAdminMutation()
     const navigate = useNavigate()
 
@@ -38,13 +39,13 @@ export default function Login() {
 
         try {
             const response = await login({ email, password })?.unwrap();
-            
+
             if (response?.success) {
                 toast.success(response?.message);
                 Cookies.set("accessToken", response?.data?.token);
                 navigate("/")
             }
-        } catch (error:any) {            
+        } catch (error: any) {
             toast.error(error?.data?.message);
         }
     }
@@ -79,14 +80,25 @@ export default function Login() {
                         {/* Password */}
                         <div className="space-y-1">
                             <Label className="mb-2">Password</Label>
-                            <Input
-                                type="password"
-                                placeholder="enter password..."
-                                className="h-11"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
+
+                            <div className="relative">
+                                <Input
+                                    type={viewPassword ? "text" : "password"}
+                                    placeholder="enter password..."
+                                    className="h-11 pr-10"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={() => setViewPassword(!viewPassword)}
+                                    className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 bg-transparent!"
+                                >
+                                    {viewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                         </div>
                         {/* Terms + Forgot */}
                         <div className="space-y-3 flex items-center justify-between">

@@ -5,21 +5,23 @@ const hostApi = baseApi.injectEndpoints({
         getHosts: builder.query({
             query: () => ({
                 url: `/users/hosts${location?.search}`,
-            }),
-            transformResponse: (res: { data: any }) => res?.data,
+            }),  
+            providesTags: ['host'],          
         }),
 
         getHostById: builder.query({
-            query: (id) => `/hosts/${id}`,
+            query: (id) => `/users/hosts/${id}`,
             transformResponse: (res: { data: any }) => res?.data,
+            providesTags: ['host'],          
         }),
 
         createHost: builder.mutation({
             query: (body) => ({
-                url: "/hosts",
+                url: "/users/create-host",
                 method: "POST",
                 body,
             }),
+            invalidatesTags: ['host'],
         }),
 
         updateHost: builder.mutation({
@@ -32,9 +34,10 @@ const hostApi = baseApi.injectEndpoints({
 
         deleteHost: builder.mutation({
             query: (id) => ({
-                url: `/hosts/${id}`,
+                url: `/users/hosts/${id}`,
                 method: "DELETE",
             }),
+            invalidatesTags: ['host'],
         }),
 
         getHostAnalytics: builder.query({

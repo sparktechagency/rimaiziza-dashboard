@@ -11,11 +11,14 @@ import {
   DropdownMenuTrigger
 } from "../ui/dropdown-menu";
 import Cookies from "js-cookie";
+import { useGetProfileQuery } from "../../redux/features/user/userApi";
 
 
 
 const Navbar = () => {
-
+  const {data: profileData, isLoading} = useGetProfileQuery({});
+  console.log("profileData", profileData);
+  
   const navigate = useNavigate();
   const handleLogout = () => {
     Cookies.remove("accessToken");    
@@ -36,18 +39,24 @@ const Navbar = () => {
           <div className="hidden md:flex border-l-2 border-slate-200 pl-0.5">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex bg-transparent! items-center gap-2 rounded-lg px-2 py-1.5 transition-colors  hover:bg-slate-200/50 focus:outline-none">
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-10 w-10">
                   <AvatarImage
-                    src="/assets/img/theme/team-4-800x800.jpg"
+                    src={profileData?.profileImage ? profileData?.profileImage : "/default-avatar.png"}
                     alt="Jessica Jones"
                   />
                   <AvatarFallback className="bg-slate-700 text-xs text-white">
-                    JJ
+                    {profileData?.name?.charAt(0) || "U"}
                   </AvatarFallback>
                 </Avatar>
-                <span className="hidden text-sm font-semibold text-white lg:inline-block">
-                  Jessica Jones
-                </span>
+                <div className="flex  flex-col  items-start">
+                <p className="hidden text-sm font-semibold text-white lg:inline-block">
+                  {profileData?.name || "User"}
+                </p>
+                <p className="hidden text-sm font-semibold text-white lg:inline-block">
+                  {profileData?.email || "User"}
+                </p>
+
+                </div>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent

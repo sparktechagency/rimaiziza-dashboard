@@ -2,7 +2,7 @@ import { Car } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { imageUrl } from "../../../redux/base/baseAPI";
-import { useCreateCarMutation } from "../../../redux/features/cars/carsApi";
+import { useCreateCarMutation, useUpdateCarMutation } from "../../../redux/features/cars/carsApi";
 import { MultipleImageUploader } from "../../Shared/MultipleImageUploader";
 import { SingleImageUpload } from "../../Shared/SingleImageUpload";
 import { Button } from "../../ui/button";
@@ -10,11 +10,13 @@ import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { Textarea } from "../../ui/textarea";
 import { useGetHostsQuery } from "../../../redux/features/host/hostApi";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 
 interface AddCarFormProps {
   onSubmit?: (formData: FormData) => void;
   onCancel?: () => void;
   data?: any;
+  open?: boolean;
 }
 
 const FACILITIES = [
@@ -28,46 +30,118 @@ const FACILITIES = [
   { label: "Cruise Control", value: "cruise_control" },
 ];
 
-const DAYS = [
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
-];
+const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
+const HOURS = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}:00`);
 
-const HOURS = Array.from({ length: 24 }, (_, i) =>
-  `${i.toString().padStart(2, "0")}:00`
-);
+// Controlled form fields state
+interface FormFields {
+  brand: string;
+  model: string;
+  year: string;
+  color: string;
+  licensePlate: string;
+  seatNumber: string;
+  transmission: string;
+  fuelType: string;
+  mileage: string;
+  dailyPrice: string;
+  hourlyPrice: string;
+  depositAmount: string;
+  minimumTripDuration: string;
+  city: string;
+  assignedHosts: string;
+  latitude: string;
+  longitude: string;
+  withDriver: string;
+  shortDescription: string;
+  about: string;
+}
 
+const defaultFields: FormFields = {
+  brand: "",
+  model: "",
+  year: "",
+  color: "",
+  licensePlate: "",
+  seatNumber: "",
+  transmission: "",
+  fuelType: "",
+  mileage: "",
+  dailyPrice: "",
+  hourlyPrice: "",
+  depositAmount: "",
+  minimumTripDuration: "",
+  city: "",
+  assignedHosts: "",
+  latitude: "",
+  longitude: "",
+  withDriver: "false",
+  shortDescription: "",
+  about: "",
+};
 
+export default function AddCarForm({ onCancel, data, open }: AddCarFormProps) {
+  if (!open) return null;
 
+  const isEditMode = !!data?._id;
 
-
-export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
+  const [fields, setFields] = useState<FormFields>(defaultFields);
   const [images, setImages] = useState<File[]>([]);
-
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
   const [selectedDays, setSelectedDays] = useState<string[]>(DAYS);
   const [selectedHours, setSelectedHours] = useState<string[]>(HOURS);
-  const [image, setImage] = useState<File | null>(null)
-  const [existCover, setExistCover] = useState("")    
-  const [createCar] = useCreateCarMutation()
-  const  {data: hostsData} = useGetHostsQuery({})
+  const [image, setImage] = useState<File | null>(null);
+  const [existCover, setExistCover] = useState("");
+  const [existImages, setExistImages] = useState<string[]>([]);
+  const [createCar] = useCreateCarMutation();
+  const [updateCar] = useUpdateCarMutation();
+  const { data: hostsData } = useGetHostsQuery({});
 
+  // Populate form when editing
   useEffect(() => {
-    if (data?.coverImage) {
-      setExistCover(data?.coverImage);      
+    if (data) {
+      setFields({
+        brand: data.brand || "",
+        model: data.model || "",
+        year: data.year?.toString() || "",
+        color: data.color || "",
+        licensePlate: data.licensePlate || "",
+        seatNumber: data.seatNumber?.toString() || "",
+        transmission: data.transmission || "",
+        fuelType: data.fuelType || "",
+        mileage: data.mileage || "",
+        dailyPrice: data.dailyPrice?.toString() || "",
+        hourlyPrice: data.hourlyPrice?.toString() || "",
+        depositAmount: data.depositAmount?.toString() || "",
+        minimumTripDuration: data.minimumTripDuration?.toString() || "",
+        city: data.city || "",
+        assignedHosts: data.assignedHosts?._id || data.assignedHosts || "",
+        latitude: data.pickupPoint?.coordinates?.[1]?.toString() || "",
+        longitude: data.pickupPoint?.coordinates?.[0]?.toString() || "",
+        withDriver: data.withDriver?.toString() || "false",
+        shortDescription: data.shortDescription || "",
+        about: data.about || "",
+      });
+
+      if (data.coverImage) setExistCover(data.coverImage);
+      if (data.images?.length) setExistImages(data.images);
+      if (data.facilities?.length) {
+        setSelectedFacilities(data.facilities.map((f: any) => f.value));
+      }
+      if (data.availableDays?.length) setSelectedDays(data.availableDays);
+      if (data.availableHours?.length) setSelectedHours(data.availableHours);
     }
-  }, [data])
+  }, [data]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
   const toggleFacility = (value: string) => {
     setSelectedFacilities((prev) =>
-      prev.includes(value)
-        ? prev.filter((f) => f !== value)
-        : [...prev, value]
+      prev.includes(value) ? prev.filter((f) => f !== value) : [...prev, value]
     );
   };
 
@@ -85,38 +159,32 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
     setSelectedHours((prev) => (prev.length === HOURS.length ? [] : HOURS));
   };
 
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.currentTarget;
     const formData = new FormData();
 
-    // Build the payload object
     const payload = {
-      brand: form.brand.value,
-      model: form.model.value,
-      year: parseInt(form.year.value),
-      transmission: form.transmission.value,
-      fuelType: form.fuelType.value,
-      mileage: form.mileage.value,
-      seatNumber: parseInt(form.seatNumber.value),
-      depositAmount: parseFloat(form.depositAmount.value),
-      color: form.color.value,
-      assignedHosts: form.assignedHosts.value,
-      about: form.about.value,
-      shortDescription: form.shortDescription.value,
-      licensePlate: form.licensePlate.value,
-      dailyPrice: parseFloat(form.dailyPrice.value),
-      hourlyPrice: parseFloat(form.hourlyPrice.value),
-      minimumTripDuration: parseFloat(form.minimumTripDuration.value),
-      withDriver: form.withDriver.value === "true",
-      city: form.city.value,
+      brand: fields.brand,
+      model: fields.model,
+      year: parseInt(fields.year),
+      transmission: fields.transmission,
+      fuelType: fields.fuelType,
+      mileage: fields.mileage,
+      seatNumber: parseInt(fields.seatNumber),
+      depositAmount: parseFloat(fields.depositAmount),
+      color: fields.color,
+      assignedHosts: fields.assignedHosts,
+      about: fields.about,
+      shortDescription: fields.shortDescription,
+      licensePlate: fields.licensePlate,
+      dailyPrice: parseFloat(fields.dailyPrice),
+      hourlyPrice: parseFloat(fields.hourlyPrice),
+      minimumTripDuration: parseFloat(fields.minimumTripDuration),
+      withDriver: fields.withDriver === "true",
+      city: fields.city,
       pickupPoint: {
         type: "Point",
-        coordinates: [
-          parseFloat(form.longitude.value),
-          parseFloat(form.latitude.value),
-        ],
+        coordinates: [parseFloat(fields.longitude), parseFloat(fields.latitude)],
       },
       availableDays: selectedDays,
       facilities: selectedFacilities.map((value) => {
@@ -126,154 +194,110 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
       availableHours: selectedHours,
     };
 
-    // Append JSON payload
     formData.append("data", JSON.stringify(payload));
 
-    // Append cover image
-    if (image) {
-      formData.append("coverImage", image);
-    }
-
-    // Append multiple images
-    images.forEach((image) => {
-      formData.append("images", image);
-    });
-
+    if (image) formData.append("coverImage", image);
+    images.forEach((img) => formData.append("images", img));
 
     try {
-      const response = await createCar(formData)?.unwrap()
+      let response;
 
-      console.log("create cart", response);
-      
-      if(response?.success){
-        toast.success(response?.message)        
+      if (isEditMode) {
+        response = await updateCar({ id: data._id, formData })?.unwrap();
+      } else {
+        response = await createCar(formData)?.unwrap();
       }
-    } catch (error:any) {
-      console.log("error", error);
-      toast.error(error?.data?.message)
-      
+
+      if (response?.success) {
+        toast.success(response?.message);
+        console.log("response", response);
+        onCancel?.();
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Something went wrong");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Cover Image Upload */}
-
+      {/* Cover Image */}
       <div className="flex items-center gap-6">
         <SingleImageUpload
           file={image}
           onChange={setImage}
-          onRemove={() => setImage(null)}
-          existingImage={existCover}
+          onRemove={() => { setImage(null); setExistCover(""); }}
+          existingImage={existCover ? `${imageUrl}${existCover}` : ""}
           title="Cover Image"
           height={200}
-          cover          
+          cover
         />
       </div>
 
+      {/* Gallery Images */}
       <div className="flex items-center gap-6">
         <MultipleImageUploader
           files={images}
           onChange={setImages}
           onRemove={(index) => {
-            const updated = [...images]
-            updated.splice(index, 1)
-            setImages(updated)
+            if (index < existImages.length) {
+              // Removing an existing image
+              setExistImages((prev) => prev.filter((_, i) => i !== index));
+            } else {
+              // Removing a newly added file
+              const newIndex = index - existImages.length;
+              setImages((prev) => prev.filter((_, i) => i !== newIndex));
+            }
           }}
-          existingImages={data?.images?.map(
-            (img: string) => `${imageUrl}${img}`
-          )}
+          existingImages={existImages}
           title="Gallery Images"
           height={180}
           width="100%"
-          maxImages={8}          
+          maxImages={8}
         />
       </div>
 
       {/* Basic Information */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">
-          Basic Information
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">Basic Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="brand">Brand</Label>
-            <Input
-              id="brand"
-              name="brand"
-              placeholder="Toyota"
-              className="bg-white h-11"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="model">Model</Label>
-            <Input
-              id="model"
-              name="model"
-              placeholder="Corolla"
-              className="bg-white h-11"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="year">Year</Label>
-            <Input
-              id="year"
-              name="year"
-              type="number"
-              placeholder="2021"
-              className="bg-white h-11"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="color">Color</Label>
-            <Input
-              id="color"
-              name="color"
-              placeholder="White"
-              className="bg-white h-11"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="licensePlate">License Plate</Label>
-            <Input
-              id="licensePlate"
-              name="licensePlate"
-              placeholder="DHAKA-KHA-1352"
-              className="bg-white h-11"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="seatNumber">Number of Seats</Label>
-            <Input
-              id="seatNumber"
-              name="seatNumber"
-              type="number"
-              min="0"
-              max="50"
-              placeholder="5"
-              className="bg-white h-11"
-              required
-            />
-          </div>
+          {[
+            { id: "brand", placeholder: "Toyota" },
+            { id: "model", placeholder: "Corolla" },
+            { id: "year", placeholder: "2021", type: "number" },
+            { id: "color", placeholder: "White" },
+            { id: "licensePlate", placeholder: "DHAKA-KHA-1352", label: "License Plate" },
+            { id: "seatNumber", placeholder: "5", type: "number", min: "0", max: "50", label: "Number of Seats" },
+          ].map(({ id, placeholder, type = "text", min, max, label }) => (
+            <div key={id} className="space-y-2">
+              <Label htmlFor={id}>{label || id.charAt(0).toUpperCase() + id.slice(1)}</Label>
+              <Input
+                id={id}
+                name={id}
+                type={type}
+                placeholder={placeholder}
+                min={min}
+                max={max}
+                value={fields[id as keyof FormFields]}
+                onChange={handleChange}
+                className="bg-white h-11"
+                required
+              />
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Technical Specifications */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">
-          Technical Specifications
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">Technical Specifications</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="transmission">Transmission</Label>
             <select
               id="transmission"
               name="transmission"
+              value={fields.transmission}
+              onChange={handleChange}
               className="w-full h-11 px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             >
@@ -287,6 +311,8 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
             <select
               id="fuelType"
               name="fuelType"
+              value={fields.fuelType}
+              onChange={handleChange}
               className="w-full h-11 px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             >
@@ -303,6 +329,8 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
               id="mileage"
               name="mileage"
               placeholder="18 km/l"
+              value={fields.mileage}
+              onChange={handleChange}
               className="bg-white h-11"
               required
             />
@@ -310,70 +338,37 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
         </div>
       </div>
 
-      {/* Pricing Information */}
+      {/* Pricing */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">
-          Pricing Information
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">Pricing Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="dailyPrice">Daily Price (BDT)</Label>
-            <Input
-              id="dailyPrice"
-              name="dailyPrice"
-              type="number"
-              step="0.01"
-              placeholder="2500"
-              className="bg-white h-11"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="hourlyPrice">Hourly Price (BDT)</Label>
-            <Input
-              id="hourlyPrice"
-              name="hourlyPrice"
-              type="number"
-              step="0.01"
-              placeholder="300"
-              className="bg-white h-11"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="depositAmount">Deposit Amount (BDT)</Label>
-            <Input
-              id="depositAmount"
-              name="depositAmount"
-              type="number"
-              step="0.01"
-              placeholder="100"
-              className="bg-white h-11"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="minimumTripDuration">
-              Minimum Trip Duration (hours)
-            </Label>
-            <Input
-              id="minimumTripDuration"
-              name="minimumTripDuration"
-              type="number"
-              step="0.5"
-              placeholder="2"
-              className="bg-white h-11"
-              required
-            />
-          </div>
+          {[
+            { id: "dailyPrice", placeholder: "2500", label: "Daily Price (BDT)" },
+            { id: "hourlyPrice", placeholder: "300", label: "Hourly Price (BDT)" },
+            { id: "depositAmount", placeholder: "100", label: "Deposit Amount (BDT)" },
+            { id: "minimumTripDuration", placeholder: "2", label: "Minimum Trip Duration (hours)", step: "0.5" },
+          ].map(({ id, placeholder, label, step = "0.01" }) => (
+            <div key={id} className="space-y-2">
+              <Label htmlFor={id}>{label}</Label>
+              <Input
+                id={id}
+                name={id}
+                type="number"
+                step={step}
+                placeholder={placeholder}
+                value={fields[id as keyof FormFields]}
+                onChange={handleChange}
+                className="bg-white h-11"
+                required
+              />
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Location & Assignment */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">
-          Location & Assignment
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">Location & Assignment</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="city">City</Label>
@@ -381,21 +376,39 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
               id="city"
               name="city"
               placeholder="Dhaka"
+              value={fields.city}
+              onChange={handleChange}
               className="bg-white h-11"
               required
             />
           </div>
-            <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="assignedHosts">Assign Hoster</Label>
-            <select
-              id="assignedHosts"
-              name="assignedHosts"
-              className="w-full h-11 px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              required
+            <Select
+              value={fields.assignedHosts}
+              onValueChange={(value) =>
+                setFields((prev: any) => ({ ...prev, assignedHosts: value }))
+              }
             >
-              <option value="">Select Hoster</option>
-              {hostsData?.map((host:any)=><option value={host?._id}>{host?.name}</option>)}              
-            </select>
+              <SelectTrigger className="w-full h-11">
+                <SelectValue placeholder="Select Hoster" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {hostsData?.data?.map((host: any) => (
+                  <SelectItem key={host._id} value={host._id}>
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={imageUrl + host.profileImage}
+                        alt={host.name}
+                        className="w-6 h-6 rounded-full object-cover"
+                      />
+                      {host.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="latitude">Pickup Latitude</Label>
@@ -405,6 +418,8 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
               type="number"
               step="any"
               placeholder="23.8103"
+              value={fields.latitude}
+              onChange={handleChange}
               className="bg-white h-11"
               required
             />
@@ -417,6 +432,8 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
               type="number"
               step="any"
               placeholder="90.4125"
+              value={fields.longitude}
+              onChange={handleChange}
               className="bg-white h-11"
               required
             />
@@ -426,14 +443,14 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
 
       {/* Driver Option */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">
-          Driver Option
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">Driver Option</h3>
         <div className="space-y-2">
           <Label htmlFor="withDriver">Available With Driver</Label>
           <select
             id="withDriver"
             name="withDriver"
+            value={fields.withDriver}
+            onChange={handleChange}
             className="w-full h-11 px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           >
@@ -445,15 +462,10 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
 
       {/* Facilities */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">
-          Facilities
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">Facilities</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {FACILITIES.map((facility) => (
-            <label
-              key={facility.value}
-              className="flex items-center gap-2 cursor-pointer"
-            >
+            <label key={facility.value} className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={selectedFacilities.includes(facility.value)}
@@ -469,14 +481,8 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
       {/* Available Days */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-800 uppercase">
-            Available Days
-          </h3>
-          <button
-            type="button"
-            onClick={toggleAllDays}
-            className="text-sm text-indigo-600 hover:text-indigo-700"
-          >
+          <h3 className="text-sm font-semibold text-gray-800 uppercase">Available Days</h3>
+          <button type="button" onClick={toggleAllDays} className="text-sm text-indigo-600 hover:text-indigo-700">
             {selectedDays.length === DAYS.length ? "Deselect All" : "Select All"}
           </button>
         </div>
@@ -489,9 +495,7 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
                 onChange={() => toggleDay(day)}
                 className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
               />
-              <span className="text-sm text-gray-700 capitalize">
-                {day.toLowerCase()}
-              </span>
+              <span className="text-sm text-gray-700 capitalize">{day.toLowerCase()}</span>
             </label>
           ))}
         </div>
@@ -500,17 +504,9 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
       {/* Available Hours */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-800 uppercase">
-            Available Hours
-          </h3>
-          <button
-            type="button"
-            onClick={toggleAllHours}
-            className="text-sm text-indigo-600 hover:text-indigo-700"
-          >
-            {selectedHours.length === HOURS.length
-              ? "Deselect All"
-              : "Select All"}
+          <h3 className="text-sm font-semibold text-gray-800 uppercase">Available Hours</h3>
+          <button type="button" onClick={toggleAllHours} className="text-sm text-indigo-600 hover:text-indigo-700">
+            {selectedHours.length === HOURS.length ? "Deselect All" : "Select All"}
           </button>
         </div>
         <div className="grid grid-cols-4 md:grid-cols-6 gap-3 max-h-48 overflow-y-auto p-2 border border-gray-200 rounded-md">
@@ -521,9 +517,7 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
                 checked={selectedHours.includes(hour)}
                 onChange={() =>
                   setSelectedHours((prev) =>
-                    prev.includes(hour)
-                      ? prev.filter((h) => h !== hour)
-                      : [...prev, hour]
+                    prev.includes(hour) ? prev.filter((h) => h !== hour) : [...prev, hour]
                   )
                 }
                 className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
@@ -536,9 +530,7 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
 
       {/* Descriptions */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">
-          Descriptions
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-800 uppercase mb-4">Descriptions</h3>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="shortDescription">Short Description</Label>
@@ -546,6 +538,8 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
               id="shortDescription"
               name="shortDescription"
               placeholder="Clean, comfortable, fuel-efficient."
+              value={fields.shortDescription}
+              onChange={handleChange}
               className="bg-white h-11"
               required
             />
@@ -557,6 +551,8 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
               name="about"
               placeholder="A well-maintained family sedan with excellent comfort..."
               rows={6}
+              value={fields.about}
+              onChange={handleChange}
               className="bg-white resize-none"
               required
             />
@@ -575,13 +571,9 @@ export default function AddCarForm({ onCancel, data }: AddCarFormProps) {
         >
           Cancel
         </Button>
-        <Button
-          type="submit"
-          size="lg"
-          className=""
-        >
+        <Button type="submit" size="lg">
           <Car className="w-4 h-4 mr-2" />
-          Add Car
+          {isEditMode ? "Update Car" : "Add Car"}
         </Button>
       </div>
     </form>
