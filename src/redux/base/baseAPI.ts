@@ -6,7 +6,7 @@ export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
 
-    baseUrl: "http://moshfiqur5007.binarybards.online/api/v1",   
+    baseUrl: "https://moshfiqur5007.binarybards.online/api/v1",   
     prepareHeaders: (headers) => {      
       const token = Cookies.get("accessToken");
       if (token) {
@@ -21,4 +21,4 @@ export const baseApi = createApi({
   tagTypes: ["user", "notifications", "admin", "category", "slider", "faqs", "withdrawal", "planner", "cars", "host", "booking", "profile", "rules", "commission"],
 });
 
-export const imageUrl = "http://moshfiqur5007.binarybards.online";
+export const imageUrl = "https://moshfiqur5007.binarybards.online";
