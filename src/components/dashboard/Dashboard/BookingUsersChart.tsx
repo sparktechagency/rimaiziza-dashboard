@@ -40,6 +40,7 @@ export function BookingUsersChart({ mode = "light" }: OrdersChartProps) {
   const { data:bookingUserData } = useGetBookingUsersGrowthQuery(selectedYear);
 
   
+  // @ts-ignore
   const gridColor = getGridColor(mode);
 
   // Transform API data

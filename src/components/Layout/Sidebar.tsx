@@ -35,11 +35,11 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed  bg-white overflow-hidden border-r border-neutral-200 transition-all duration-300 dark:border-neutral-800 dark:bg-neutral-950 w-70")}
+        "fixed  bg-white overflow-hidden border-r border-neutral-200 transition-all duration-300 w-70")}
     >
       <div className="h-screen flex flex-col">
         {/* Header / Logo + Toggle */}
-        <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-4 dark:border-neutral-800">
+        <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-4">
 
           <div className="flex items-center gap-2">
             {/* Replace with your logo */}
@@ -47,10 +47,10 @@ export default function Sidebar() {
               TL
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              <span className="text-sm font-semibold text-neutral-900">
                 TradeLink
               </span>
-              <span className="text-xs text-neutral-500 dark:text-neutral-400">
+              <span className="text-xs text-neutral-500">
                 Network
               </span>
             </div>
@@ -94,7 +94,7 @@ export default function Sidebar() {
         </ScrollArea>
 
         {/* Logout */}
-        <div className="border-t border-neutral-200 p-3 dark:border-neutral-800 ">
+        <div className="border-t border-neutral-200 p-3 ">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

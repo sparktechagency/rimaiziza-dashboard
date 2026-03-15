@@ -29,12 +29,14 @@ export const fonts = {
   base: "Open Sans",
 };
 
-export type ChartMode = "light" | "dark";
+export type ChartMode = "light";
 
+// @ts-ignore
 export const getChartColor = (mode: ChartMode = "light") => {
-  return mode === "dark" ? colors.gray[700] : colors.gray[600];
+  return colors.gray[600];
 };
 
+// @ts-ignore
 export const getGridColor = (mode: ChartMode = "light") => {
-  return mode === "dark" ? colors.gray[900] : colors.gray[300];
+  return colors.gray[300];
 };

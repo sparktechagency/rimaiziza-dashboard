@@ -295,9 +295,8 @@ export default function BookingDetailsModal({
                         <section className="space-y-4 pt-4 border-t">
                             <h3 className="text-lg font-semibold text-destructive">Admin Actions</h3>
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <Button
-                                    variant="outline"
-                                    className="border-red-500 text-red-600 hover:bg-red-50 flex-1"
+                                <Button                                    
+                                    className="flex-1"
                                     onClick={() => {
                                         handleCancelBooking(bookingData?._id);
                                     }}

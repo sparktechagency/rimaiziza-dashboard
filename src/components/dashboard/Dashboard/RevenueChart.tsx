@@ -34,6 +34,7 @@ const monthNames = [
 export function RevenueChart({ mode = "light" }: SalesChartProps) {
     const [selectedYear, setSelectedYear] = useState(currentYear.toString());
     const { data: revenueChart } = useGetRevenueGrowthQuery(selectedYear);    
+    // @ts-ignore
     const gridColor = getGridColor(mode);
 
     // 🔹 Transform API data
