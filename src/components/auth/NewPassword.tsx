@@ -1,16 +1,22 @@
+import Cookies from "js-cookie";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useResetPasswordMutation } from "../../redux/features/auth/authApi";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader } from "../ui/card";
-import { Eye, EyeOff } from "lucide-react";
+
 
 const NewPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [resetPassword] = useResetPasswordMutation()
+const navigate = useNavigate();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!password || !confirmPassword) {
       toast.error("Please fill in both fields");
       return;
@@ -20,7 +26,22 @@ const NewPassword = () => {
       toast.error("Passwords do not match");
       return;
     }    
-    toast.success("Password submitted successfully!");
+    try {
+          const values = {
+      newPassword: password,
+      confirmPassword: confirmPassword,
+    };
+
+      const res = await resetPassword(values).unwrap();
+      
+      if(res?.success){
+        toast.success(res?.message)        
+        Cookies.remove("verifyToken")
+        navigate("/login");
+      }
+    } catch (error: any) {      
+      toast.error(error?.data?.message);
+    }
   };
 
   return (

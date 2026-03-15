@@ -268,7 +268,7 @@ export default function Hosts() {
 
                                     {/* API field: totalRevenue */}
                                     <TableCell className="text-center font-medium text-green-700">
-                                        ${(host.totalRevenue ?? 0).toLocaleString()}
+                                        RM {(host.totalRevenue ?? 0).toLocaleString()}
                                     </TableCell>
 
                                     {/* API field: totalTrips */}

@@ -62,7 +62,7 @@ const authApi = baseApi.injectEndpoints({
     verifyOTP: build.mutation({
       query: (data) => {
         return {
-          url: "/auth/verify-otp",
+          url: "/auth/verify-email",
           method: "POST",
           body: data,
         };
@@ -78,7 +78,7 @@ const authApi = baseApi.injectEndpoints({
         body: data,
         headers: {
           "Content-Type": "application/json",          
-          token: `${Cookies.get("verifyToken")}`, 
+          resettoken: `${Cookies.get("verifyToken")}`, 
         },                    
         }      
       },

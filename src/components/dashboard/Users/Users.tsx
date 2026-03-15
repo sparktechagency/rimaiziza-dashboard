@@ -1,4 +1,4 @@
-import { Loader, Lock, Mail, Search, Trash2, Unlock } from "lucide-react";
+import { Loader, Lock, Search, Trash2, Unlock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
@@ -169,20 +169,12 @@ export default function Users() {
                                                     className="w-10 h-10 rounded-full object-cover"
                                                 />
                                             ) : (
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                                                <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold">
                                                     {user?.name?.charAt(0)}
                                                 </div>
                                             )}
-
-                                            <div>
-                                                <div className="font-medium text-gray-900">
-                                                    {user.name}
-                                                </div>
-
-                                                <div className="text-sm text-gray-500 flex items-center gap-1">
-                                                    <Mail className="w-3 h-3" />
-                                                    {user.email}
-                                                </div>
+                                            <div className="font-medium text-gray-900">
+                                                {user.name}
                                             </div>
                                         </div>
                                     </TableCell>

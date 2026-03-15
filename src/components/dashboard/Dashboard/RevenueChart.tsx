@@ -101,7 +101,7 @@ export function RevenueChart({ mode = "light" }: SalesChartProps) {
                         axisLine={false}
                         tickLine={false}
                         tick={{ fill: colors.gray[600], fontSize: 13 }}
-                        tickFormatter={(value: number) => `$${value}`}
+                        tickFormatter={(value: number) => `RM ${value}`}
                         dx={-10}
                     />
                     <Tooltip

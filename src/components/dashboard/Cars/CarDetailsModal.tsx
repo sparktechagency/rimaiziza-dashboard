@@ -1,6 +1,7 @@
 // components/vehicle/CarDetailsModal.tsx
-import { Copy, ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useState } from 'react'
+import { imageUrl } from "../../../redux/base/baseAPI"
 import { Badge } from "../../ui/badge"
 import { Button } from "../../ui/button"
 import {
@@ -8,7 +9,6 @@ import {
     DialogContent,
     DialogTitle
 } from "../../ui/dialog"
-import { imageUrl } from "../../../redux/base/baseAPI"
 
 interface CarDetailsModalProps {
     open: boolean
@@ -17,14 +17,10 @@ interface CarDetailsModalProps {
 }
 
 export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalProps) {
-    const [copiedField, setCopiedField] = useState<string | null>(null)
+    
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-    const copyToClipboard = (text: string, field: string) => {
-        navigator.clipboard.writeText(text)
-        setCopiedField(field)
-        setTimeout(() => setCopiedField(null), 2000)
-    }
+
 
     const getStatusBadge = () => {
         if (!car?.isActive) return 'bg-red-100 text-red-800 hover:bg-red-100'
@@ -178,18 +174,7 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
                                     License Plate
                                 </p>
                                 <div className="flex items-center gap-2">
-                                    <p className="font-medium">{car?.licensePlate}</p>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-7 w-7"
-                                        onClick={() => copyToClipboard(car?.licensePlate, 'license')}
-                                    >
-                                        <Copy className="h-3.5 w-3.5" />
-                                    </Button>
-                                    {copiedField === 'license' && (
-                                        <span className="text-xs text-green-600">Copied</span>
-                                    )}
+                                    <p className="font-medium">{car?.licensePlate}</p>                                    
                                 </div>
                             </div>
                             <div>
@@ -229,7 +214,7 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
                                         Daily Rate
                                     </p>
                                     <p className="text-2xl font-bold text-blue-700">
-                                        ${car?.dailyPrice?.toLocaleString()}
+                                        RM {car?.dailyPrice?.toLocaleString()}
                                     </p>
                                 </div>
                                 <div className="flex justify-between items-center">
@@ -237,7 +222,7 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
                                         Hourly Rate
                                     </p>
                                     <p className="text-xl font-semibold text-blue-700">
-                                        ${car?.hourlyPrice?.toLocaleString()}
+                                        RM {car?.hourlyPrice?.toLocaleString()}
                                     </p>
                                 </div>
                                 <div className="border-t border-blue-200 pt-3">
@@ -246,7 +231,7 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
                                             Deposit Amount
                                         </p>
                                         <p className="text-lg font-semibold text-blue-700">
-                                            ${car?.depositAmount?.toLocaleString()}
+                                            RM {car?.depositAmount?.toLocaleString()}
                                         </p>
                                     </div>
                                 </div>
@@ -275,18 +260,7 @@ export default function CarDetailsModal({ open, onClose, car }: CarDetailsModalP
                                         Email
                                     </p>
                                     <div className="flex items-center gap-2">
-                                        <p className="font-medium">{car.assignedHosts.email}</p>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-7 w-7"
-                                            onClick={() => copyToClipboard(car.assignedHosts.email, 'host-email')}
-                                        >
-                                            <Copy className="h-3.5 w-3.5" />
-                                        </Button>
-                                        {copiedField === 'host-email' && (
-                                            <span className="text-xs text-green-600">Copied</span>
-                                        )}
+                                        <p className="font-medium">{car.assignedHosts.email}</p>                                                                         
                                     </div>
                                 </div>
                                 <div>

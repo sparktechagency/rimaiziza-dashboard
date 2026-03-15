@@ -1,7 +1,6 @@
 // components/booking/BookingDetailsModal.tsx
-import { Copy } from "lucide-react";
-import { useState } from "react";
 import Swal from "sweetalert2";
+import { imageUrl } from "../../../redux/base/baseAPI";
 import { useCancelBookingMutation, useGetSingleBookingQuery } from "../../../redux/features/booking/bookingApi";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
@@ -11,7 +10,6 @@ import {
     DialogTitle,
 } from "../../ui/dialog";
 import { Skeleton } from "../../ui/skeleton"; // ← add this if you have shadcn skeleton
-import { imageUrl } from "../../../redux/base/baseAPI";
 
 interface BookingDetailsModalProps {
     open: boolean;
@@ -33,13 +31,7 @@ export default function BookingDetailsModal({
     });
     const [cancelBooking] = useCancelBookingMutation();
 
-    const [copiedField, setCopiedField] = useState<string | null>(null);
 
-    const copyToClipboard = (text: string, field: string) => {
-        navigator.clipboard.writeText(text);
-        setCopiedField(field);
-        setTimeout(() => setCopiedField(null), 1800);
-    };
 
     const getStatusColor = (status: string = "") => {
         const s = status.toUpperCase();
@@ -171,22 +163,7 @@ export default function BookingDetailsModal({
                                         Email
                                     </p>
                                     <div className="flex items-center gap-2">
-                                        <p className="font-medium">{bookingData?.user?.email || "—"}</p>
-                                        {bookingData?.user?.email && (
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-7 w-7"
-                                                onClick={() =>
-                                                    copyToClipboard(bookingData.user.email, "user-email")
-                                                }
-                                            >
-                                                <Copy className="h-3.5 w-3.5" />
-                                            </Button>
-                                        )}
-                                        {copiedField === "user-email" && (
-                                            <span className="text-xs text-green-600">Copied!</span>
-                                        )}
+                                        <p className="font-medium">{bookingData?.user?.email || "—"}</p>                                        
                                     </div>
                                 </div>
                             </div>
@@ -207,22 +184,7 @@ export default function BookingDetailsModal({
                                         Email
                                     </p>
                                     <div className="flex items-center gap-2">
-                                        <p className="font-medium">{bookingData?.host?.email || "—"}</p>
-                                        {bookingData?.host?.email && (
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-7 w-7"
-                                                onClick={() =>
-                                                    copyToClipboard(bookingData.host.email, "host-email")
-                                                }
-                                            >
-                                                <Copy className="h-3.5 w-3.5" />
-                                            </Button>
-                                        )}
-                                        {copiedField === "host-email" && (
-                                            <span className="text-xs text-green-600">Copied!</span>
-                                        )}
+                                        <p className="font-medium">{bookingData?.host?.email || "—"}</p>                                       
                                     </div>
                                 </div>
                             </div>

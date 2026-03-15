@@ -1,10 +1,10 @@
 import { FiUsers } from "react-icons/fi";
+import { IoCarOutline } from "react-icons/io5";
+import { TbBrandBooking } from "react-icons/tb";
 import { cn } from "../../../lib/utils";
+import { useGetAnalyticsQuery } from "../../../redux/features/dashboard/dashboardApi";
 import { Card, CardContent } from "../../ui/card";
 import { Skeleton } from "../../ui/skeleton";
-import { TbCurrencyDollar, TbBrandBooking } from "react-icons/tb";
-import { IoCarOutline } from "react-icons/io5";
-import { useGetAnalyticsQuery } from "../../../redux/features/dashboard/dashboardApi";
 
 const StatsCards = () => {
   const { data: anlyticsData, isLoading } = useGetAnalyticsQuery({});
@@ -13,7 +13,7 @@ const StatsCards = () => {
     {
       title: "Total Revenue",
       value: anlyticsData?.totalRevenue ?? 0,
-      icon: TbCurrencyDollar,
+      icon: '/rm-icon.svg',
       iconBgColor: "bg-red-500",
     },
     {
@@ -39,7 +39,7 @@ const StatsCards = () => {
   return (
     <div className="w-full bg-gradient-info px-4 pt-4 pb-56">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat, index) => {
+        {stats.map((stat:any, index) => {
           const Icon = stat.icon;
 
           return (
@@ -73,7 +73,11 @@ const StatsCards = () => {
                         stat.iconBgColor
                       )}
                     >
+                     {stat.title === "Total Revenue" ? (
+                      <img src={stat.icon} alt={stat.title} className="h-5 w-5 text-white!" />
+                     ) : (
                       <Icon className="h-5 w-5 text-white" />
+                     )}
                     </div>
                   )}
                 </div>

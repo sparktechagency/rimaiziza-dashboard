@@ -209,7 +209,7 @@ export default function Bookings() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="font-semibold">
-                                                        ${booking.totalAmount?.toFixed(2)}
+                                                        RM {booking.totalAmount?.toFixed(2)}
                                                     </div>
                                                     <div className="text-xs text-muted-foreground">
                                                         {durationDays} day{durationDays !== 1 ? "s" : ""}
