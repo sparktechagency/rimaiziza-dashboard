@@ -16,6 +16,6 @@ export default defineConfig({
     // port: 3015,
     host: "76.13.210.102",
     port: 5005,
-    allowedHosts: ["https://rimaiziza-dashboard.vercel.app", "https://dashboard.gogreenmatrix.my", "https://api.gogreenmatrix.my"]
+    allowedHosts: ["https://rimaiziza-dashboard.vercel.app", "dashboard.gogreenmatrix.my", "https://api.gogreenmatrix.my"]
   },
 })
