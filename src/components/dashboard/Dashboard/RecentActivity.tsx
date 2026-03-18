@@ -1,10 +1,10 @@
-import { Bell, Car, CheckCircle, Clock, CreditCard, MapPin, Settings, UserPlus } from 'lucide-react';
+import { Bell, Car, CheckCircle, Clock, CreditCard, Settings, UserPlus } from 'lucide-react';
+import { useEffect } from 'react';
+import { useSocket } from '../../../hooks/socketConnection';
+import { useGetRecentActivitiesQuery } from '../../../redux/features/notification/notificationApi';
+import { useGetProfileQuery } from '../../../redux/features/user/userApi';
 import { Card, CardContent, CardHeader } from '../../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table';
-import { useGetRecentActivitiesQuery } from '../../../redux/features/notification/notificationApi';
-import { useSocket } from '../../../hooks/socketConnection';
-import { useEffect } from 'react';
-import { useGetProfileQuery } from '../../../redux/features/user/userApi';
 
 const getTypeConfig = (type: string) => {
     switch (type?.toUpperCase()) {
